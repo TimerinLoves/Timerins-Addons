@@ -19,7 +19,7 @@ Optional:
 ## Installation
 
 1. Install Fabric for 1.21.11.
-2. Put `fabric-api`, `cloth-config`, and `timerins-addons` (from `build/libs/`) into your `.minecraft/mods` folder.
+2. Put `fabric-api`, `cloth-config`, and `timerins-addons` (from releases tab) into your `.minecraft/mods` folder.
 
 ## Controls
 
