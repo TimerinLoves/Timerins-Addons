@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "timerins_addons",
+	"version": "${version}",
+	"name": "Timerin's Addons",
+	"description": "Hypixel SkyBlock utilities: item tracker HUD with inventory-based counts.",
+	"authors": [
+		"Timerin"
+	],
+	"contact": {
+		"sources": "https://github.com/Timerin/timerins-addons"
+	},
+	"license": "CC0-1.0",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"dev.timerin.timerinsaddons.TimerinsAddonsClient"
+		]
+	},
+	"mixins": [
+		{
+			"config": "timerins_addons.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.6",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*",
+		"cloth-config": "*"
+	},
+	"suggests": {
+		"firmament": "*"
+	}
+}

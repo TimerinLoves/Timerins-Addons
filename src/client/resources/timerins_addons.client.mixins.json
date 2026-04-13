@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "dev.timerin.timerinsaddons.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"AbstractContainerScreenMixin",
+		"AbstractContainerScreenInvoker",
+		"ScreenInvoker"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
