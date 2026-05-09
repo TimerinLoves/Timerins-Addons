@@ -27,6 +27,9 @@ public final class ItemTrackerHud {
 				return;
 			}
 			ModConfig cfg = store.getConfig();
+			if (cfg.isOverlayHidden()) {
+				return;
+			}
 			if (cfg.getDisplayMode() == ModConfig.TrackerDisplayMode.INVENTORY) {
 				return;
 			}

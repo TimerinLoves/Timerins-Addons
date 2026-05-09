@@ -57,10 +57,8 @@ public final class CollectionMenuCapture {
 		ItemStackCodecUtil.encode(stack).ifPresent(goal::setDisplayStackJson);
 		collectionStore.putOrReplace(goal);
 		collectionStore.save();
-		if (!collectionStore.getSettings().getHypixelApiKey().isEmpty()) {
-			HypixelProfileService.forceAllowNextFetch();
-			HypixelProfileService.refreshCollectionsAsync(client, collectionStore);
-		}
+		HypixelProfileService.forceAllowNextFetch();
+		HypixelProfileService.refreshCollectionsAsync(client, collectionStore);
 		return true;
 	}
 

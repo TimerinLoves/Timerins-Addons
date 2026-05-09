@@ -11,8 +11,6 @@ public final class CollectionHudSettings {
 	/** Container overlay panel. */
 	private int inventoryPanelX = 8;
 	private int inventoryPanelY = 100;
-	/** Hypixel Public API key (developer.hypixel.net); stored in collections.json only. */
-	private String hypixelApiKey = "";
 
 	public boolean isHudEnabled() {
 		return hudEnabled;
@@ -52,14 +50,6 @@ public final class CollectionHudSettings {
 
 	public void setInventoryPanelY(int inventoryPanelY) {
 		this.inventoryPanelY = inventoryPanelY;
-	}
-
-	public String getHypixelApiKey() {
-		return hypixelApiKey;
-	}
-
-	public void setHypixelApiKey(String hypixelApiKey) {
-		this.hypixelApiKey = hypixelApiKey == null ? "" : hypixelApiKey.trim();
 	}
 
 	public CollectionHudSettings normalize() {

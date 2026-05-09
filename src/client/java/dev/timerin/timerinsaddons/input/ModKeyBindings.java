@@ -11,6 +11,7 @@ public final class ModKeyBindings {
 			Identifier.fromNamespaceAndPath("timerins_addons", "main"));
 
 	public static KeyMapping OPEN_TRACKER_CONFIG;
+	public static KeyMapping TOGGLE_OVERLAY_VISIBILITY;
 
 	private ModKeyBindings() {
 	}
@@ -19,6 +20,10 @@ public final class ModKeyBindings {
 		OPEN_TRACKER_CONFIG = KeyBindingHelper.registerKeyBinding(new KeyMapping(
 				"key.timerins_addons.open_config",
 				GLFW.GLFW_KEY_O,
+				CATEGORY));
+		TOGGLE_OVERLAY_VISIBILITY = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+				"key.timerins_addons.toggle_overlay_visibility",
+				GLFW.GLFW_KEY_H,
 				CATEGORY));
 	}
 }

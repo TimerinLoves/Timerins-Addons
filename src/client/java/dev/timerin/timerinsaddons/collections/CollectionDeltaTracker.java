@@ -77,9 +77,6 @@ public final class CollectionDeltaTracker {
 		if (store.getGoals().isEmpty()) {
 			return;
 		}
-		if (store.getSettings().getHypixelApiKey().isEmpty()) {
-			return;
-		}
 		boolean allowDelta = allowInventoryDeltaForScreen(client.screen);
 		for (CollectionGoal goal : store.getGoals()) {
 			String rid = goal.getResourceId().trim();

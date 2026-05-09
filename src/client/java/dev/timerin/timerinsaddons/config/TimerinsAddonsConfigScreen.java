@@ -70,7 +70,6 @@ public final class TimerinsAddonsConfigScreen {
 
 		CollectionHudSettings ch = collectionStore.getSettings();
 		final boolean[] collectionHudEnabled = { ch.isHudEnabled() };
-		final String[] hypixelApiKeyDraft = { ch.getHypixelApiKey() };
 
 		List<MutableCollectionRow> cRows = new ArrayList<>();
 		for (CollectionGoal g : collectionStore.getGoals()) {
@@ -93,7 +92,7 @@ public final class TimerinsAddonsConfigScreen {
 				.setTitle(Component.translatable("screen.timerins_addons.config.title"))
 				.setSavingRunnable(() -> {
 					applyRowsFromConfig(store, rows);
-					applyCollectionRowsFromConfig(collectionStore, cRows, collectionHudEnabled[0], hypixelApiKeyDraft[0]);
+					applyCollectionRowsFromConfig(collectionStore, cRows, collectionHudEnabled[0]);
 					store.save();
 					collectionStore.save();
 				})
@@ -161,11 +160,6 @@ public final class TimerinsAddonsConfigScreen {
 				.setDefaultValue(false)
 				.setTooltip(Component.translatable("option.timerins_addons.collection_hud_enabled.tooltip"))
 				.setSaveConsumer(v -> collectionHudEnabled[0] = v)
-				.build());
-		coll.addEntry(eb.startStrField(Component.translatable("option.timerins_addons.hypixel_api_key"), hypixelApiKeyDraft[0])
-				.setDefaultValue("")
-				.setTooltip(Component.translatable("option.timerins_addons.hypixel_api_key.tooltip"))
-				.setSaveConsumer(v -> hypixelApiKeyDraft[0] = v == null ? "" : v)
 				.build());
 
 		for (int i = 0; i < cRows.size(); i++) {
@@ -240,10 +234,8 @@ public final class TimerinsAddonsConfigScreen {
 	private static void applyCollectionRowsFromConfig(
 			CollectionStore collectionStore,
 			List<MutableCollectionRow> rows,
-			boolean hudEnabled,
-			String hypixelApiKey) {
+			boolean hudEnabled) {
 		collectionStore.getSettings().setHudEnabled(hudEnabled);
-		collectionStore.getSettings().setHypixelApiKey(hypixelApiKey);
 		collectionStore.clearGoalsAndLocalProgressEstimates();
 		for (MutableCollectionRow r : rows) {
 			if (r.resourceId == null || r.resourceId.isBlank()) {

@@ -27,6 +27,7 @@ public final class SackChatContribution {
 	 * Same pattern as SkyHanni {@code sackChangeRegex}: delta, display name, sack list in parentheses.
 	 */
 	private static final Pattern SACK_CHANGE_LINE = Pattern.compile("([+-][\\d,]+) (.+) \\((.+)\\)");
+	private static final Pattern GEM_TIER_AMOUNT = Pattern.compile("(?i)\\b(rough|flawed|fine|flawless|perfect)\\s*:\\s*([+-]?[\\d,]+)");
 
 	private static volatile CollectionStore boundStore;
 	private static volatile TrackerStore boundTrackerStore;
@@ -91,14 +92,61 @@ public final class SackChatContribution {
 				continue;
 			}
 			String itemDisplay = lineMatcher.group(2).trim();
-			String guessedKey = guessSkyBlockKeyFromDisplayName(itemDisplay);
-			if (wantCollections) {
-				creditMatchingGoals(store, guessedKey, itemDisplay, delta);
-			}
-			if (wantTracker) {
-				creditMatchingTrackers(trackerStore, guessedKey, itemDisplay, delta);
+			String details = lineMatcher.group(3).trim();
+			List<SackDeltaLine> expanded = expandGemstoneRarityLines(itemDisplay, details, delta);
+			for (SackDeltaLine line : expanded) {
+				String guessedKey = guessSkyBlockKeyFromDisplayName(line.itemDisplay());
+				if (wantCollections) {
+					creditMatchingGoals(store, guessedKey, line.itemDisplay(), line.delta());
+				}
+				if (wantTracker) {
+					creditMatchingTrackers(trackerStore, guessedKey, line.itemDisplay(), line.delta());
+				}
 			}
 		}
+	}
+
+	private record SackDeltaLine(String itemDisplay, long delta) {
+	}
+
+	/**
+	 * Gemstone sack lines may aggregate all tiers under one gemstone family (e.g. "Ruby Gemstone" with details like
+	 * "Rough: 2, Flawed: 1"). Split these into per-tier lines so goals/trackers can match ROUGH_/FLAWED_/... keys.
+	 */
+	private static List<SackDeltaLine> expandGemstoneRarityLines(String itemDisplay, String details, long delta) {
+		if (itemDisplay == null || details == null) {
+			return List.of(new SackDeltaLine(itemDisplay == null ? "" : itemDisplay, delta));
+		}
+		String itemLower = itemDisplay.toLowerCase(Locale.ROOT);
+		if (!itemLower.contains("gemstone")) {
+			return List.of(new SackDeltaLine(itemDisplay, delta));
+		}
+		Matcher m = GEM_TIER_AMOUNT.matcher(details);
+		List<SackDeltaLine> out = new ArrayList<>();
+		String base = itemDisplay.replaceFirst("(?i)^\\s*(rough|flawed|fine|flawless|perfect)\\s+", "").trim();
+		while (m.find()) {
+			String tier = m.group(1).trim().toLowerCase(Locale.ROOT);
+			String rawAmount = m.group(2).replace(",", "").trim();
+			long tierAmount;
+			try {
+				tierAmount = Long.parseLong(rawAmount);
+			} catch (NumberFormatException ex) {
+				continue;
+			}
+			long signed = tierAmount;
+			if (signed > 0 && delta < 0) {
+				signed = -signed;
+			}
+			if (signed == 0L) {
+				continue;
+			}
+			String tieredDisplay = Character.toUpperCase(tier.charAt(0)) + tier.substring(1) + " " + base;
+			out.add(new SackDeltaLine(tieredDisplay, signed));
+		}
+		if (out.isEmpty()) {
+			return List.of(new SackDeltaLine(itemDisplay, delta));
+		}
+		return out;
 	}
 
 	/** Same logical line twice (e.g. duplicated hovers) would otherwise double-apply deltas. */

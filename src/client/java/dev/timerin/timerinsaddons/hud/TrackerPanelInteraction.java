@@ -72,6 +72,9 @@ public final class TrackerPanelInteraction {
 					return true;
 				}
 				ModConfig cfg = trackerStore.getConfig();
+				if (cfg.isOverlayHidden()) {
+					return true;
+				}
 				boolean trackerEmpty = trackerStore.getEntries().isEmpty();
 				boolean collOff = !collectionStore.getSettings().isHudEnabled() || collectionStore.getGoals().isEmpty();
 				if (trackerEmpty && collOff) {
@@ -128,6 +131,11 @@ public final class TrackerPanelInteraction {
 			return;
 		}
 		ModConfig cfg = trackerStore.getConfig();
+		if (cfg.isOverlayHidden()) {
+			dragging = false;
+			dragTarget = DragTarget.NONE;
+			return;
+		}
 		var window = client.getWindow();
 		double mx = client.mouseHandler.xpos() * (double) window.getGuiScaledWidth() / (double) window.getWidth();
 		double my = client.mouseHandler.ypos() * (double) window.getGuiScaledHeight() / (double) window.getHeight();
@@ -164,6 +172,9 @@ public final class TrackerPanelInteraction {
 		double mx = ctx.x();
 		double my = ctx.y();
 		ModConfig cfg = trackerStore.getConfig();
+		if (cfg.isOverlayHidden()) {
+			return true;
+		}
 		boolean trackerEmpty = trackerStore.getEntries().isEmpty();
 		boolean collOff = !collectionStore.getSettings().isHudEnabled() || collectionStore.getGoals().isEmpty();
 

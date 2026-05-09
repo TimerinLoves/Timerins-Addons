@@ -1,75 +1,87 @@
 # Timerin's Addons
 
-Client-side Fabric mod for **Minecraft 1.21.11** with Hypixel SkyBlock utilities:
-- **Item Tracker** goals (HUD + inventory overlays)
-- **Collection goals** with profile-sync + live estimate support
+**Minecraft 1.21.11 Fabric mod for Hypixel SkyBlock** that helps you track progress toward item and collection goals.
 
-**Author:** Timerin
+## What this mod does
 
-## Requirements
+- Track custom goals for items (example: `ENCHANTED_DIAMOND 64`).
+- Track collection goals with live progress updates.
+- Show clean overlays in-game, in inventory, or both.
+- Let you hide/show overlays quickly with a keybind.
+- Handle SkyBlock-style ids like `raw_fish:1` correctly in commands.
 
-- Java 21
-- Fabric Loader (0.18.6+)
-- [Fabric API](https://modrinth.com/mod/fabric-api) for 1.21.11
-- [Cloth Config API](https://modrinth.com/mod/cloth-config) (Fabric, 1.21.11)
+## Main features
 
-Optional:
-- [Firmament](https://modrinth.com/mod/firmament) (not required; used when present to improve raw SkyBlock item-id resolution)
+### 1) Item Tracker
+- Add item goals with commands or from hovered items.
+- See `current / target` progress in overlay panels.
+- Keep separate panel positions for HUD and inventory screens.
+
+### 2) Collection Tracker
+- Add collection goals with commands.
+- Uses API-backed totals + local pickup/sack updates for smoother progress.
+- Better sack parsing for mixed gemstone rarity lines (Rough/Flawed/Fine/Flawless/Perfect).
+
+### 3) Overlay Controls
+- Display mode: `World HUD`, `Inventory`, or `Both`.
+- Toggle overlays on/off with a keybind while keeping your selected mode remembered.
+- Drag panels and scale them in-game.
 
 ## Installation
 
-1. Install Fabric for 1.21.11.
-2. Put `fabric-api`, `cloth-config`, and `timerins-addons` (from releases tab) into your `.minecraft/mods` folder.
+1. Install Fabric for **Minecraft 1.21.11**.
+2. Put these files in your `.minecraft/mods` folder:
+   - [Fabric API](https://modrinth.com/mod/fabric-api)
+   - [Cloth Config API](https://modrinth.com/mod/cloth-config)
+   - `timerins-addons-<version>.jar` (from the repo releases page or your local `build/libs`)
 
-## Controls
+Optional:
+- [Firmament](https://modrinth.com/mod/firmament) (extra item-id compatibility, not required).
 
-Defaults (change in **Options → Controls**, category **Timerin's Addons**):
+## Default keybinds
 
-- **Add hovered item to tracker** (default **B**) — with a container/inventory screen open and the cursor over a slot, opens a small dialog to set the **target amount**, then saves the item id from that stack.
-- **Open item tracker config** (default **O**) — opens Cloth Config (HUD, item tracker rows, collection rows, and Hypixel API key field).
+You can change all keybinds in **Options -> Controls -> Timerin's Addons**.
 
-## Display modes
+- `B` — Add hovered item to tracker
+- `O` — Open config
+- `H` — Toggle overlays (show/hide)
 
-In config, **Tracker display** chooses where the list is drawn:
+## Commands
 
-- **World HUD only** — overlay while playing (not inside container UIs as a second copy; inventory UIs can still be open with vanilla HUD visible).
-- **Inventory screens only** — list while any `AbstractContainerScreen` is open (chest, player inventory, etc.).
-- **Both** — draws in the world HUD and again on container screens (inventory overlay uses separate X/Y offsets).
+- `/timerin config`
+- `/timerin add item <item id ...> <target>`
+- `/timerin add collection <resource id ...> <target>`
+- `/timerin remove item <id fragment>`
+- `/timerin remove collection <resource id fragment>`
+- `/timerin clear`
+- `/timerin clear all | item | collection`
 
-## Commands (client)
+Tip: keep a space before the number (example: `raw_fish:1 100000`).
 
-- `/timerin config` — open config.
-- `/timerin add item <item id ...> <target>` — add or replace an item goal.
-- `/timerin add collection <resource id ...> <target>` — add or replace a collection goal.
-- `/timerin remove item <id fragment>` — remove matching item rows.
-- `/timerin remove collection <resource id fragment>` — remove matching collection rows.
-- `/timerin clear` (or `/timerin clear all`) — clear items + collections.
-- `/timerin clear item` — clear only item rows.
-- `/timerin clear collection` — clear only collection rows.
+## Worker setup (required for collection API sync)
 
-Note: `add item` and `add collection` use a greedy id + final amount, so ids like `raw_fish:1` work as long as there is a space before the final number.
+This project uses a Cloudflare Worker so API secrets stay server-side.
+
+Worker files in this repo:
+- `worker/wrangler.jsonc`
+- `worker/src/index.js`
+
+Cloudflare steps:
+1. Deploy a **Worker** from this GitHub repo.
+2. Set **Root directory** to `worker`.
+3. Add Worker secret: `HYPIXEL_API_KEY`.
+4. Verify: `https://<your-worker>.workers.dev/health` returns `ok`.
 
 ## Config files
 
-- `%minecraft%/config/timerins_addons/item_tracker.json` — item goals + HUD settings.
-- `%minecraft%/config/timerins_addons/collections.json` — collection goals, collection HUD settings, and the Hypixel API key field.
+- `%minecraft%/config/timerins_addons/item_tracker.json`
+- `%minecraft%/config/timerins_addons/collections.json`
 
-## SkyBlock item ids
-
-Items are matched using **`ExtraAttributes.id`** from item component data when present; otherwise the mod falls back to the vanilla item registry id (useful for testing outside SkyBlock).
-
-## Firmament (optional)
-
-If [Firmament](https://modrinth.com/mod/firmament) is installed, the mod can prefer Firmament-provided raw SkyBlock ids when available. There is no hard dependency.
-
-## Hypixel / fair use
-
-This mod only **reads** your inventory and **displays** information. It does not automate gameplay. Follow Hypixel's current rules for allowed modifications.
-
-## Building
+## Build from source
 
 ```bash
 ./gradlew build
 ```
 
-Output: `build/libs/timerins-addons-<version>.jar`.
+Output jar:
+- `build/libs/timerins-addons-<version>.jar`

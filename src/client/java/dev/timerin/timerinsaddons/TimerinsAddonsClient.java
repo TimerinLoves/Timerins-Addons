@@ -66,10 +66,14 @@ public class TimerinsAddonsClient implements ClientModInitializer {
 				Screen parent = client.screen;
 				client.execute(() -> client.setScreen(TimerinsAddonsConfigScreen.create(parent, trackerStore, collectionStore)));
 			}
+			while (ModKeyBindings.TOGGLE_OVERLAY_VISIBILITY.consumeClick()) {
+				var cfg = trackerStore.getConfig();
+				cfg.setOverlayHidden(!cfg.isOverlayHidden());
+				trackerStore.save();
+			}
 			if (client.player != null
 					&& collectionStore.getSettings().isHudEnabled()
-					&& !collectionStore.getGoals().isEmpty()
-					&& !collectionStore.getSettings().getHypixelApiKey().isEmpty()) {
+					&& !collectionStore.getGoals().isEmpty()) {
 				collectionPublicApiPollTicks++;
 				if (collectionPublicApiPollTicks >= COLLECTION_API_POLL_TICKS) {
 					collectionPublicApiPollTicks = 0;
@@ -225,10 +229,6 @@ public class TimerinsAddonsClient implements ClientModInitializer {
 			int amount) {
 		if (rawId == null || rawId.isBlank()) {
 			source.sendFeedback(Component.translatable("message.timerins_addons.collection_command_parse_failed"));
-			return 0;
-		}
-		if (collectionStore.getSettings().getHypixelApiKey().isEmpty()) {
-			source.sendFeedback(Component.translatable("message.timerins_addons.collection_need_api_key"));
 			return 0;
 		}
 		Minecraft mc = Minecraft.getInstance();

@@ -149,14 +149,14 @@ public final class CollectionGoal {
 	}
 
 	/**
-	 * With a Hypixel Public API key: last profile fetch for {@link #resourceId} plus a client-side delta from visible
+	 * With worker-backed API data: last profile fetch for {@link #resourceId} plus a client-side delta from visible
 	 * inventory changes (and sack NBT when Hypixel exposes counts on sack items). The delta resets whenever the profile
-	 * API syncs again. Without a key: open-inventory count for {@link #itemKey} (not sacks).
+	 * API syncs again. If no API total has been fetched yet, fallback is open-inventory count for {@link #itemKey}.
 	 */
 	public int resolveCurrent(LocalPlayer player, CollectionStore store) {
-		if (!store.getSettings().getHypixelApiKey().isEmpty()) {
-			Long api = store.getApiCollectionAmount(resourceId);
-			long base = api != null ? api : 0L;
+		Long api = store.getApiCollectionAmount(resourceId);
+		if (api != null) {
+			long base = api;
 			long delta = store.getCollectionDelta(resourceId);
 			long sum = base + delta;
 			return (int) Math.min(Integer.MAX_VALUE, Math.max(0L, sum));

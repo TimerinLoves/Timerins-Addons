@@ -19,6 +19,8 @@ public final class ModConfig {
 	private int inventoryPanelY = 8;
 	private float hudScale = 1.0F;
 	private int defaultTargetAmount = 1;
+	/** Temporary visibility toggle (keybind): keeps display mode remembered while hidden. */
+	private boolean overlayHidden;
 
 	public static ModConfig createDefault() {
 		return new ModConfig();
@@ -93,5 +95,13 @@ public final class ModConfig {
 
 	public void setDefaultTargetAmount(int defaultTargetAmount) {
 		this.defaultTargetAmount = defaultTargetAmount;
+	}
+
+	public boolean isOverlayHidden() {
+		return overlayHidden;
+	}
+
+	public void setOverlayHidden(boolean overlayHidden) {
+		this.overlayHidden = overlayHidden;
 	}
 }

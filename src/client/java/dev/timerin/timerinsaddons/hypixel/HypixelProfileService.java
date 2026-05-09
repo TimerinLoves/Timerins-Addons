@@ -25,14 +25,15 @@ import net.minecraft.client.Minecraft;
 import dev.timerin.timerinsaddons.collections.CollectionStore;
 
 /**
- * SkyBlock profile collection totals via Hypixel Public API (developer key in {@link CollectionStore} settings).
+ * SkyBlock profile collection totals via Timerin's Worker proxy (which holds the real Hypixel API key server-side).
  * Automatic polls are throttled to {@link #MIN_INTERVAL_MS}; manual refresh uses {@link #forceAllowNextFetch()}.
  */
 public final class HypixelProfileService {
 	private static final Logger LOGGER = LoggerFactory.getLogger("timerins_addons");
-	/** Hypixel disabled unversioned SkyBlock profile routes (Sept 2024); v2 is required. */
-	private static final String URL_SKYBLOCK_PROFILES = "https://api.hypixel.net/v2/skyblock/profiles?uuid=";
-	private static final String URL_SKYBLOCK_PROFILE = "https://api.hypixel.net/v2/skyblock/profile?profile=";
+	/** Worker endpoint base (no direct Hypixel fallback by design). */
+	private static final String WORKER_BASE_URL = "https://timerins-addons.timerinloves.workers.dev";
+	private static final String URL_SKYBLOCK_PROFILES = WORKER_BASE_URL + "/v2/skyblock/profiles?uuid=";
+	private static final String URL_SKYBLOCK_PROFILE = WORKER_BASE_URL + "/v2/skyblock/profile?profile=";
 	private static final HttpClient HTTP = HttpClient.newBuilder()
 			.connectTimeout(Duration.ofSeconds(12))
 			.build();
@@ -53,8 +54,7 @@ public final class HypixelProfileService {
 	}
 
 	public static void refreshCollectionsAsync(Minecraft client, CollectionStore store) {
-		String key = store.getSettings().getHypixelApiKey();
-		if (key.isEmpty() || client.player == null) {
+		if (client.player == null) {
 			return;
 		}
 		long now = System.currentTimeMillis();
@@ -67,8 +67,7 @@ public final class HypixelProfileService {
 
 		HttpRequest profilesReq = HttpRequest.newBuilder()
 				.uri(URI.create(URL_SKYBLOCK_PROFILES
-						+ URLEncoder.encode(uuidStr, StandardCharsets.UTF_8)
-						+ "&key=" + URLEncoder.encode(key, StandardCharsets.UTF_8)))
+						+ URLEncoder.encode(uuidStr, StandardCharsets.UTF_8)))
 				.timeout(Duration.ofSeconds(15))
 				.GET()
 				.build();
@@ -83,8 +82,7 @@ public final class HypixelProfileService {
 						String profileId = chosen.get("profile_id").getAsString();
 						HttpRequest profileReq = HttpRequest.newBuilder()
 								.uri(URI.create(URL_SKYBLOCK_PROFILE
-										+ URLEncoder.encode(profileId, StandardCharsets.UTF_8)
-										+ "&key=" + URLEncoder.encode(key, StandardCharsets.UTF_8)))
+										+ URLEncoder.encode(profileId, StandardCharsets.UTF_8)))
 								.timeout(Duration.ofSeconds(15))
 								.GET()
 								.build();
@@ -107,9 +105,8 @@ public final class HypixelProfileService {
 	/** For commands: runs on client thread; bypasses the normal throttle. */
 	public static boolean refreshCollectionsBlocking(Minecraft client, CollectionStore store) {
 		lastBlockingFetchError = null;
-		String key = store.getSettings().getHypixelApiKey();
-		if (key.isEmpty() || client.player == null) {
-			lastBlockingFetchError = "API key empty or not in world";
+		if (client.player == null) {
+			lastBlockingFetchError = "Not in world";
 			return false;
 		}
 		String uuidStr = client.player.getUUID().toString();
@@ -117,8 +114,7 @@ public final class HypixelProfileService {
 		try {
 			HttpRequest profilesReq = HttpRequest.newBuilder()
 					.uri(URI.create(URL_SKYBLOCK_PROFILES
-							+ URLEncoder.encode(uuidStr, StandardCharsets.UTF_8)
-							+ "&key=" + URLEncoder.encode(key, StandardCharsets.UTF_8)))
+							+ URLEncoder.encode(uuidStr, StandardCharsets.UTF_8)))
 					.timeout(Duration.ofSeconds(15))
 					.GET()
 					.build();
@@ -138,8 +134,7 @@ public final class HypixelProfileService {
 			String profileId = chosen.get("profile_id").getAsString();
 			HttpRequest profileReq = HttpRequest.newBuilder()
 					.uri(URI.create(URL_SKYBLOCK_PROFILE
-							+ URLEncoder.encode(profileId, StandardCharsets.UTF_8)
-							+ "&key=" + URLEncoder.encode(key, StandardCharsets.UTF_8)))
+							+ URLEncoder.encode(profileId, StandardCharsets.UTF_8)))
 					.timeout(Duration.ofSeconds(15))
 					.GET()
 					.build();
